@@ -1,0 +1,21 @@
+method: grid
+metric:
+  name: val_loss
+  goal: minimize
+parameters:
+  learning_rate:
+    values: [1e-4, 1e-3, 1e-2, 1e-1]
+    # values: [1e-4] ## For initial testing
+  hidden_size:
+    values: [16, 32, 64]
+    # values: [16] ## For initial testing
+  dropout:
+    values: [0.1, 0.25]
+    # values: [0.1] ## For initial testing
+  epochs:
+    values: [5, 10, 20]
+    # values: [1] ## For initial testing
+  loss:
+    values: ['RMSE', 'MAE', 'QuantileLoss']
+    # values: ['RMSE'] ## For initial testing
+command: ["python", "train.py"]
