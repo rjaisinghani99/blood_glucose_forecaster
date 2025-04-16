@@ -1,0 +1,43 @@
+method: random  # 🔄 Switch from bayes → random for broader initial coverage
+metric:
+  name: val_loss
+  goal: minimize
+
+parameters:
+  model:
+    value: TemporalFusionTransformer
+
+  loss:
+    value: QuantileLoss
+
+  quantiles:
+    value: [0.2, 0.5, 0.8]
+
+  hidden_size:
+    values: [32, 64, 96, 128]  # ➕ Add 128 back in to see if more capacity helps
+
+  hidden_continuous_size:
+    values: [4, 8, 16]         # ➕ Explore a bit more expressiveness
+
+  attention_head_size:
+    values: [1, 2, 4]          # ➕ Include 4 heads for richer attention
+
+  dropout:
+    min: 0.0                   # 🔄 Include 0.0 (some low-dropout models perform well)
+    max: 0.3
+    distribution: uniform
+
+  weight_decay:
+    min: 1e-6                  # 🔄 Start smaller to capture lightly regularized models
+    max: 1e-2
+    distribution: log_uniform_values
+
+  learning_rate:
+    min: 1e-5                  # 🔄 Slightly safer lower bound
+    max: 1e-3                  # ➕ Give it a shot — 3e-4 may not be the ceiling
+    distribution: log_uniform_values
+
+  epochs:
+    value: 50
+
+command: ["python", "train.py"]
