@@ -1,16 +1,13 @@
 import pandas as pd
 import glob
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
-import torch
-import torch.nn as nn
-from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer, GroupNormalizer, RecurrentNetwork
+from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer, GroupNormalizer, RecurrentNetwork, Baseline
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
 import wandb
+import torch
 import pickle
 
 # Load and clean data
@@ -100,11 +97,15 @@ def train(normalizer):
         config = wandb.config
 
         wandb_logger = WandbLogger(project="blood-glucose-v2", name=f"run_{job_id}", log_model="all")
-        wandb_logger.log_hyperparams({
-            "learning_rate": config.learning_rate,
-            "hidden_size": config.hidden_size,
-            "dropout": config.dropout
-        })
+        if config.model != "Baseline":
+            wandb_logger.log_hyperparams({
+                "learning_rate": config.learning_rate,
+                "hidden_size": config.hidden_size,
+                "dropout": config.dropout
+            })
+        else:
+            wandb_logger.log_hyperparams({"model": "Baseline"})
+
         # Save normalizer with run-specific name
         normalizer_path = f"trained_normalizer_{run.id}.pkl"
         with open(normalizer_path, "wb") as f:
@@ -116,29 +117,29 @@ def train(normalizer):
         run.log_artifact(artifact)
 
 
-        if config.loss == "RMSE":
-            from pytorch_forecasting.metrics import RMSE
-            loss_fn = RMSE()
+        if config.model == "Baseline":
+            model = Baseline()
+            loss_fn = None  # Not used
             output_size = 1
-        elif config.loss == "MAE":
-            from pytorch_forecasting.metrics import MAE
-            loss_fn = MAE()
-            output_size = 1
-        elif config.loss == "QuantileLoss":
-            if config.model == "LSTM":
+        else:
+            if config.loss == "RMSE":
                 from pytorch_forecasting.metrics import RMSE
                 loss_fn = RMSE()
                 output_size = 1
-            else:
+            elif config.loss == "MAE":
+                from pytorch_forecasting.metrics import MAE
+                loss_fn = MAE()
+                output_size = 1
+            elif config.loss == "QuantileLoss":
                 from pytorch_forecasting.metrics import QuantileLoss
                 loss_fn = QuantileLoss(config.quantiles)
                 output_size = len(loss_fn.quantiles)
-        else:
-            raise ValueError("Unsupported loss function")
+            else:
+                raise ValueError("Unsupported loss function")
+
 
         early_stop_callback = EarlyStopping(monitor="val_loss", patience=3, mode="min", verbose=True)
         checkpoint_callback = ModelCheckpoint(monitor="val_loss", save_top_k=1, mode="min", filename="best")
-
 
         if config.model == "TemporalFusionTransformer":
             # Create the TemporalFusionTransformer model using hyperparameters from wandb.config.
@@ -155,6 +156,13 @@ def train(normalizer):
                         reduce_on_plateau_patience=4,
                         weight_decay=config.weight_decay
                     )
+             trainer = Trainer(
+                accelerator="mps",
+                devices=1,
+                max_epochs=config.epochs,
+                logger=wandb_logger,
+                callbacks=[early_stop_callback, checkpoint_callback]
+            )
         elif config.model == "LSTM":
             # Create the TemporalFusionTransformer model using hyperparameters from wandb.config.
             model = RecurrentNetwork.from_dataset(
@@ -169,16 +177,48 @@ def train(normalizer):
                 reduce_on_plateau_patience=4,
                 weight_decay=config.weight_decay
             )
-       
+            trainer = Trainer(
+                accelerator="mps",
+                devices=1,
+                max_epochs=config.epochs,
+                logger=wandb_logger,
+                callbacks=[early_stop_callback, checkpoint_callback]
+            )
+        elif config.model == "Baseline":
+            all_predictions = []
+            all_actuals = []
 
-        trainer = Trainer(
-            accelerator="mps",
-            devices=1,
-            max_epochs=config.epochs,
-            logger=wandb_logger,
-            callbacks=[early_stop_callback, checkpoint_callback]
-        )
+            for x, y in val_dataloader:
+                preds = model(x)["prediction"]  # shape: [B, T, 1]
+                all_predictions.append(preds.detach())
+                all_actuals.append(y[0].detach())  # [B, T]
 
+            predictions = torch.cat(all_predictions, dim=0)  # [B, T, 1]
+            actuals = torch.cat(all_actuals, dim=0)  # [B, T]
+
+            from pytorch_forecasting.metrics import SMAPE, RMSE, MAE, QuantileLoss
+
+            if config.loss == "QuantileLoss":
+                quantiles = getattr(config, "quantiles", [0.2, 0.5, 0.8])
+                num_q = len(quantiles)
+
+                # Expand predictions to shape [B, T, Q]
+                predictions = predictions.unsqueeze(-1) 
+                predictions = predictions.expand(-1, -1, num_q)  # keep batch and time the same, expand to Q
+
+                metric = QuantileLoss(quantiles=quantiles)
+
+            else:
+                metrics_dict = {"SMAPE": SMAPE(), "RMSE": RMSE(), "MAE": MAE()}
+                metric = metrics_dict[config.loss]
+
+            val_loss = metric(predictions, actuals)
+
+            print(f"Baseline {config.loss} on validation set: {val_loss.item()}")
+            wandb.log({f"val_{config.loss.lower()}": val_loss.item()})
+            return
+
+        
         trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
 
 if __name__ == "__main__":

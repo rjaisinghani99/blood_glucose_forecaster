@@ -1,0 +1,20 @@
+method: grid  
+metric:
+  name: val_loss
+  goal: minimize
+
+parameters:
+  model:
+    value: Baseline
+
+  loss:
+    values: [QuantileLoss, RMSE, MAE]
+    # value: QuantileLoss  # Focused sweep
+
+  quantiles:
+    value: [0.2, 0.5, 0.8]
+
+  epochs:
+    value: 1
+
+command: ["python", "train.py"]
