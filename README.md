@@ -27,13 +27,6 @@ blood_glucose_forecaster/
 ├── train.py                     # Script for training the model
 └── README.md                    # Project documentation
 
-## Clustering
-
-## Neural Network
-
-
-
-
 ## Getting Started
 ### Prerequisites
 - Python 3.8 or higher
@@ -56,7 +49,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate```</pre>
 pip install -r requirements.txt```</pre>
 
 ## Usage
-## Clustering
+### Clustering
 
 ### Neural Network
 #### Training the Model
