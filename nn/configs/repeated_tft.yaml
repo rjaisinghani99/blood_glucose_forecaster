@@ -1,0 +1,37 @@
+method: random
+metric:
+  name: val_loss
+  goal: minimize
+
+parameters:
+  model:
+    value: TemporalFusionTransformer
+
+  loss:
+    value: QuantileLoss
+
+  quantiles:
+    value: [0.2, 0.5, 0.8]
+
+  hidden_size:
+    value: 64  # Expand down to test smaller models
+
+  hidden_continuous_size:
+    value: 16
+
+  attention_head_size:
+    value: 2
+
+  dropout:
+    value: 0.23964
+
+  weight_decay:
+    value: 0.000098074
+
+  learning_rate:
+    value: 0.00038335
+
+  epochs:
+    value: 50
+
+command: ["python", "train.py"]
