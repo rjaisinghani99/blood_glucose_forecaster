@@ -1,7 +1,12 @@
+# Time Series Clustering
+
+## Overview
+The first part of our project focuses on exploratory data analysis and clustering, using machine learning tools like time series k means clsutering, dynamic time warping distance, and UMAP. The code and results from clustering can be found in the repository folder 'eda & clustering'.
+
 # Blood Glucose Forecaster
 
 ## Overview
-This project focuses on forecasting blood glucose levels using machine learning techniques, specifically leveraging the PyTorch Forecasting library. The goal is to predict future glucose trends to aid in the management of diabetes, utilizing time-series data from continuous glucose monitoring (CGM) systems.
+The second part of our project focuses on forecasting blood glucose levels using machine learning techniques, specifically leveraging the PyTorch Forecasting library. The goal is to predict future glucose trends to aid in the management of diabetes, utilizing time-series data from continuous glucose monitoring (CGM) systems.
 
 ## Features
 **Time-Series Forecasting:** Implements models to predict future blood glucose levels based on historical data.
