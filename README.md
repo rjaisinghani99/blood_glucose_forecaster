@@ -54,7 +54,7 @@ pip install -r requirements.txt```</pre>
 ### Neural Network
 #### Training the Model
 To train the model using the provided script:
-```bash python train.py```
+<pre> ```bash python train.py ``` </pre>
 
 Alternatively, use the Jupyter notebook:
 <pre>```bash jupyter notebook pytorch_forecast.ipynb```</pre>
