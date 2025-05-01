@@ -34,8 +34,8 @@ blood_glucose_forecaster/
 
 ### Installation
 1. Clone the Repository
-````bash
-`git clone https://github.com/rjaisinghani99/blood_glucose_forecaster.git
+```bash
+git clone https://github.com/rjaisinghani99/blood_glucose_forecaster.git
 cd blood_glucose_forecaster
 git checkout
 ```
