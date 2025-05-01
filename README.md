@@ -12,7 +12,7 @@ This project focuses on forecasting blood glucose levels using machine learning 
 
 **Data Analysis:** Offers tools for analyzing predictions and comparing them with actual glucose readings.
 
-## Repository Structure
+<!-- ## Repository Structure
 blood_glucose_forecaster/
 ├── artifacts/                   # Saved model artifacts and checkpoints
 ├── blood-glucose-v2/            # Additional model versions and experiments
@@ -25,7 +25,7 @@ blood_glucose_forecaster/
 ├── test.py                      # Script for testing the trained model
 ├── test_predictions_with_truth.csv  # CSV file with test predictions and actual values
 ├── train.py                     # Script for training the model
-└── README.md                    # Project documentation
+└── README.md                    # Project documentation -->
 
 ## Getting Started
 ### Prerequisites
@@ -34,19 +34,22 @@ blood_glucose_forecaster/
 
 ### Installation
 1. Clone the Repository
-<pre> ```bash
+````bash
 `git clone https://github.com/rjaisinghani99/blood_glucose_forecaster.git
 cd blood_glucose_forecaster
-git checkout``` </pre>
+git checkout
+```
 
 2. Set Up Virtual Environment
-<pre> ```bash
+```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate```</pre>
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-3. Install Dependencies
-<pre> ```bash
-pip install -r requirements.txt```</pre>
+1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
 ### Clustering
@@ -59,21 +62,30 @@ python train.py
 ```
 
 Alternatively, use the Jupyter notebook:
-<pre>```bash jupyter notebook pytorch_forecast.ipynb```</pre>
+```bash
+jupyter notebook pytorch_forecast.ipynb
+```
 
 ### Hyperparameter Tuning
 Conduct hyperparameter sweeps using the configuration file:
-<pre> bash jupyter notebook sweep_forecast.ipynb</pre>
+```bash
+jupyter notebook sweep_forecast.ipynb
+```
 Ensure sweep_config.yaml is properly configured before running the sweep.
 
 ### Testing the Model
 After training, evaluate the model's performance:
-<pre>```bash python test.py```</pre>
+```bash
+python test.py
+```
+
 This will generate predictions and save them to ```test_predictions_with_truth.csv```.
 
 ### Analyzing Results
 Use the analysis notebook to visualize and interpret the model's predictions:
-<pre>```bash jupyter notebook analyze.ipynb```</pre>
+```bash
+jupyter notebook analyze.ipynb
+```
 
 # Data
 _Note: The dataset used for training and evaluation is not included in this repository. Please ensure you have access to appropriate blood glucose time-series data formatted for use with PyTorch Forecasting._
