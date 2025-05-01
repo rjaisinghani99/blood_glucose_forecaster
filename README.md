@@ -61,7 +61,7 @@ Alternatively, use the Jupyter notebook:
 
 ### Hyperparameter Tuning
 Conduct hyperparameter sweeps using the configuration file:
-<pre>```bash jupyter notebook sweep_forecast.ipynb```</pre>
+<pre> bash jupyter notebook sweep_forecast.ipynb</pre>
 Ensure sweep_config.yaml is properly configured before running the sweep.
 
 ### Testing the Model
